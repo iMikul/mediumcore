@@ -1,0 +1,8 @@
+{
+  "item.mediumcore.totem_of_rebirth": "Totem of Rebirth",
+  "item.mediumcore.totem_of_vitality": "Totem of Vitality",
+  "death.attack.bleed_out": "%d couldn't hold out any longer",
+  "death.attack.bleed_out.player": "%d couldn't hold out against %d any longer",
+  "death.attack.gimp": "%d's suffering was ended by %d",
+  "itemGroup.mediumcore": "Mediumcore"
+}

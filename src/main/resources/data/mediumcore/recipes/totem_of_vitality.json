@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    " D ",
+    "III",
+    " I "
+  ],
+  "key":
+  {
+    "D":
+    {
+      "item": "minecraft:diamond"
+    },
+    "I":
+    {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result":
+  {
+    "item": "mediumcore:totem_of_vitality",
+    "count": 1
+  }
+}

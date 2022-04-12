@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    " E ",
+    "OCO",
+    " O "
+  ],
+  "key":
+  {
+    "E":
+    {
+      "item": "minecraft:ender_eye"
+    },
+    "C":
+    {
+      "item": "minecraft:popped_chorus_fruit"
+    },
+    "O":
+    {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result":
+  {
+    "item": "mediumcore:totem_of_rebirth",
+    "count": 1
+  }
+}
