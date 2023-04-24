@@ -1,7 +1,7 @@
 package net.momostudios.mediumcore;
 
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,10 +30,10 @@ public class Mediumcore
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public static ItemGroup MEDIUMCORE_GROUP = new ItemGroup("mediumcore")
+    public static CreativeModeTab MEDIUMCORE_GROUP = new CreativeModeTab("mediumcore")
     {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(ItemInit.REBIRTH_TOTEM.get());
         }

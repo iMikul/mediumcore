@@ -1,13 +1,11 @@
 package net.momostudios.mediumcore.common.capability;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 
 public class DeathCapability
 {
-    @CapabilityInject(DeathCapability.class)
     public static Capability<DeathCapability> DEATHS;
 
     int deaths = 0;
@@ -16,7 +14,7 @@ public class DeathCapability
     BlockPos downPos = null;
     boolean isSpectator = false;
     boolean isBeingRevived = false;
-    PlayerEntity revivingPlayer = null;
+    Player revivingPlayer = null;
 
     // Number of deaths
     public int getDeaths()
@@ -87,12 +85,13 @@ public class DeathCapability
     }
 
     // Get player reviving this entity
-    public PlayerEntity getRevivingPlayer()
+    public Player getRevivingPlayer()
     {
         return revivingPlayer;
     }
-    public void setRevivingPlayer(PlayerEntity revivingPlayer)
+    public void setRevivingPlayer(Player revivingPlayer)
     {
         this.revivingPlayer = revivingPlayer;
     }
+
 }
