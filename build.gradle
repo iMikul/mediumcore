@@ -169,7 +169,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-		    "Specification-Title"     : "mediumcore",
+		"Specification-Title"     : "mediumcore",
                 "Specification-Vendor"    : "iMikul, chubbymomo",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
                 "Implementation-Title"    : project.name,
