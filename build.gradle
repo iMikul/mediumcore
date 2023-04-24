@@ -14,13 +14,7 @@ apply plugin: 'net.minecraftforge.gradle'
 group = 'net.momostudios'
 version = 'r1.3.0'
 
-java {
-    archivesBaseName = 'Mediumcore'
-    toolchain.languageVersion = JavaLanguageVersion.of(8)
-}
-compileJava {
-    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
