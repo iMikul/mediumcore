@@ -30,16 +30,16 @@ import net.momostudios.mediumcore.core.util.MediumcoreDamageSources;
 @Mod.EventBusSubscriber
 public class PlayerHandler
 {
-    public static boolean showAnimation = false;
-    public static ItemStack animationStack = ItemStack.EMPTY;
+    public static boolean SHOW_TOTEM_ANIMATION = false;
+    public static ItemStack ANIMATION_STACK = ItemStack.EMPTY;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event)
     {
-        if (showAnimation)
+        if (SHOW_TOTEM_ANIMATION)
         {
-            Minecraft.getInstance().gameRenderer.displayItemActivation(animationStack);
-            showAnimation = false;
+            Minecraft.getInstance().gameRenderer.displayItemActivation(ANIMATION_STACK);
+            SHOW_TOTEM_ANIMATION = false;
         }
     }
 
@@ -48,53 +48,58 @@ public class PlayerHandler
     {
         if (event.phase == TickEvent.Phase.END)
         {
-            if (event.player.getPersistentData().getInt("resistanceTime") > 0)
-            {
-                event.player.getPersistentData().putInt("resistanceTime", event.player.getPersistentData().getInt("resistanceTime") - 1);
-            }
             Player player = event.player;
-            if (!player.level.isClientSide && player.tickCount % 20 == 0)
-            {
-                updateDeathState(player);
+
+            // Tick player "i-frames"
+            if (player.getPersistentData().getInt("resistanceTime") > 0)
+            {   player.getPersistentData().putInt("resistanceTime", player.getPersistentData().getInt("resistanceTime") - 1);
             }
+            // Synchronize death statistics
+            if (!player.level.isClientSide && player.tickCount % 20 == 0)
+            {   updateDeathState(player);
+            }
+
             player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
             {
                 cap.setSpectator(player.getMaxHealth() < 2 && cap.getDeaths() >= 10);
 
                 if (cap.isDown())
                 {
-                    player.setPose(Pose.STANDING);
                     player.getAbilities().flying = false;
                     player.onUpdateAbilities();
 
+                    // Force faster bleed out countdown
                     if (player.isShiftKeyDown() && player.tickCount % 3 == 0)
-                    {
-                        cap.addDownTimeLeft(-1);
+                    {   cap.addDownTimeLeft(-1);
                     }
 
                     if (cap.getDownPos() != null)
                     {
+                        // Float to the top of water
                         if (player.isInWaterOrBubble())
                         {
                             player.setPos(cap.getDownPos().getX() + 0.5, player.getY(), cap.getDownPos().getZ() + 0.5);
+                            // Float faster when player is fully submerged
                             double waterLevel = (player.level.getBlockState(player.blockPosition().above()).getBlock() != Blocks.WATER) ? (player.blockPosition().getY() + 1.4D - player.getY()) : ((player.blockPosition().getY() + 2) - player.getY());
                             player.push(0.0D, 0.01D * waterLevel, 0.0D);
                         }
                         else
-                        {
+                        {   // Lock the player to the ground
                             player.setPos(cap.getDownPos().getX() + 0.5, player.getY(), cap.getDownPos().getZ() + 0.5);
                         }
                     }
+                    // Make the player glow
                     player.setGlowingTag(true);
+
                     if (player.tickCount % 20 == 0)
                     {
+                        // Check for players trying to revive nearby
                         boolean beingRevived = false;
                         AABB bb = new AABB(player.position().add(-1.5, -1.5, -1.5), player.position().add(1.5, 1.5, 1.5));
                         for (Entity entity : player.level.getEntities(player, bb))
                         {
                             if (entity instanceof Player && entity.isShiftKeyDown())
-                            {
-                                beingRevived = true;
+                            {   beingRevived = true;
                                 break;
                             }
                         }
@@ -102,13 +107,10 @@ public class PlayerHandler
 
                         if (cap.getDownTimeLeft() <= 0)
                         {
-                            if (!player.getAbilities().instabuild)
-                            {
-                                player.getAbilities().invulnerable = false;
-                            }
                             player.onUpdateAbilities();
                             player.hurt(MediumcoreDamageSources.BLEED_OUT, Float.MAX_VALUE);
                         }
+                        // Tick death timer
                         if (!cap.isBeingRevived() && !player.isShiftKeyDown())
                         {
                             cap.addDownTimeLeft(-1);
@@ -116,16 +118,17 @@ public class PlayerHandler
                     }
                 }
                 else
+                // Revive the player
                 {
-                    boolean spec = cap.isSpectator() && !player.getAbilities().instabuild;
-                    if (spec) player.getAbilities().flying = true;
+                    boolean isSpectator = cap.isSpectator() && !player.getAbilities().instabuild;
+                    if (isSpectator) player.getAbilities().flying = true;
 
                     if (player.tickCount % 20 == 0)
                     {
                         player.getAbilities().invulnerable = player.getAbilities().instabuild;
                         player.setGlowingTag(false);
                         //player.getAbilities().setFlySpeed(spec ? 0.03f : 0.045f);
-                        player.getAbilities().mayBuild = !spec;
+                        player.getAbilities().mayBuild = !isSpectator;
                         player.onUpdateAbilities();
                     }
                 }
@@ -181,14 +184,16 @@ public class PlayerHandler
     {
         Player player = event.getPlayer();
         Player oldPlayer = event.getOriginal();
-        oldPlayer.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
+        oldPlayer.reviveCaps();
+        player.getCapability(DeathCapability.DEATHS).ifPresent(newCap ->
         {
-            player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(player.getMaxHealth() - cap.getDeaths() * 2);
-            player.getCapability(DeathCapability.DEATHS).ifPresent(cap2 ->
+            oldPlayer.getCapability(DeathCapability.DEATHS).ifPresent(oldCap ->
             {
-                cap2.setDeaths(cap.getDeaths());
+                newCap.setDeaths(oldCap.getDeaths() + 1);
+                player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(player.getMaxHealth() - newCap.getDeaths() * 2);
             });
         });
+        oldPlayer.invalidateCaps();
     }
 
     @SubscribeEvent
@@ -268,9 +273,8 @@ public class PlayerHandler
             event.setCanceled(true);
             return;
         }
-        if (event.getTarget() instanceof Player && !event.getTarget().level.isClientSide)
+        if (event.getTarget() instanceof Player target && !event.getTarget().level.isClientSide)
         {
-            Player target = (Player) event.getTarget();
             target.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
             {
                 if (cap.isDown())

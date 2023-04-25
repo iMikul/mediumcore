@@ -39,8 +39,8 @@ public abstract class TotemItem extends Item
                 }
                 else
                 {
-                    PlayerHandler.showAnimation = true;
-                    PlayerHandler.animationStack = new ItemStack(this);
+                    PlayerHandler.SHOW_TOTEM_ANIMATION = true;
+                    PlayerHandler.ANIMATION_STACK = new ItemStack(this);
                 }
 
                 PlayerHandler.updateDeathState(entity);
