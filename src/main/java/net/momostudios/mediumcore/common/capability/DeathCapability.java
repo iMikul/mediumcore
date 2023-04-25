@@ -1,12 +1,15 @@
 package net.momostudios.mediumcore.common.capability;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class DeathCapability
 {
-    public static Capability<DeathCapability> DEATHS;
+    public static Capability<DeathCapability> DEATHS = CapabilityManager.get(new CapabilityToken<>() {});
 
     int deaths = 0;
     boolean isDown = false;
@@ -94,4 +97,27 @@ public class DeathCapability
         this.revivingPlayer = revivingPlayer;
     }
 
+    public CompoundTag serializeNBT()
+    {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putInt("Deaths", deaths);
+        nbt.putBoolean("IsDown", isDown);
+        nbt.putInt("DownTimeLeft", downTimeLeft);
+        if (downPos != null)
+        {   nbt.putLong("DownPos", downPos.asLong());
+        }
+        nbt.putBoolean("IsSpectator", isSpectator);
+        return nbt;
+    }
+
+    public void deserializeNBT(CompoundTag nbt)
+    {
+        deaths = nbt.getInt("Deaths");
+        isDown = nbt.getBoolean("IsDown");
+        downTimeLeft = nbt.getInt("DownTimeLeft");
+        if (nbt.contains("DownPos"))
+        {   downPos = BlockPos.of(nbt.getLong("DownPos"));
+        }
+        isSpectator = nbt.getBoolean("IsSpectator");
+    }
 }
