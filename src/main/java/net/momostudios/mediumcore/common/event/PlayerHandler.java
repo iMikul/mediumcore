@@ -203,7 +203,7 @@ public class PlayerHandler
         {
             player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
             {
-                if (!cap.isDown() && !player.isCreative())
+                if (!cap.isDown() && !player.isCreative() && player.level.players().size() > 1)
                 {   event.setCanceled(true);
                     player.setHealth(1);
                     cap.setDown(true);
