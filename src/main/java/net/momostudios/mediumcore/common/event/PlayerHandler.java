@@ -177,36 +177,6 @@ public class PlayerHandler
     }
 
     @SubscribeEvent
-    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
-    {
-        if (event.getEntity() instanceof Player)
-        {
-            Player player = (Player) event.getEntity();
-            player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
-            {
-                cap.setDeaths(player.getPersistentData().getInt("deaths"));
-                cap.setDown(player.getPersistentData().getBoolean("down"));
-                cap.setDownTimeLeft(player.getPersistentData().getInt("downTimeLeft"));
-            });
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event)
-    {
-        if (event.getEntity() instanceof Player)
-        {
-            Player player = (Player) event.getEntity();
-            player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
-            {
-                player.getPersistentData().putInt("deaths", cap.getDeaths());
-                player.getPersistentData().putBoolean("down", cap.isDown());
-                player.getPersistentData().putInt("downTimeLeft", cap.getDownTimeLeft());
-            });
-        }
-    }
-
-    @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.Clone event)
     {
         Player player = event.getPlayer();
