@@ -194,44 +194,20 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event)
     {
-        if (event.getEntityLiving() instanceof Player && !event.getEntityLiving().level.isClientSide)
+        if (event.getEntityLiving() instanceof Player player && !event.getEntityLiving().level.isClientSide)
         {
-            Player player = (Player) event.getEntityLiving();
-            if (player.level.players().size() > 1 && !player.getAbilities().instabuild)
+            player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
             {
-                player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
-                {
-                    if (!cap.isDown())
-                    {
-                        player.setHealth(1);
-                        event.setCanceled(true);
-                        cap.setDown(true);
-                        cap.setDownTimeLeft(60);
-                        cap.setDownPos(player.blockPosition());
-                        player.getAbilities().invulnerable = true;
-                    }
-                    else
-                    {
-                        cap.setDown(false);
-
-                        if (player.getMaxHealth() > 1)
-                        {
-                            cap.addDeaths(1);
-                        }
-                    }
-                });
+                if (!cap.isDown() && !player.isCreative())
+                {   event.setCanceled(true);
+                    player.setHealth(1);
+                    cap.setDown(true);
+                    cap.setDownTimeLeft(60);
+                    cap.setDownPos(player.blockPosition());
+                    player.getAbilities().invulnerable = true;
+                }
                 updateDeathState(player);
-            }
-            else
-            {
-                player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
-                {
-                    if (player.getMaxHealth() > 1)
-                    {
-                        cap.addDeaths(1);
-                    }
-                });
-            }
+            });
         }
     }
 
