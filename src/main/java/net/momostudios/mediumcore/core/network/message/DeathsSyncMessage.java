@@ -1,9 +1,9 @@
 package net.momostudios.mediumcore.core.network.message;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 import net.momostudios.mediumcore.common.capability.DeathCapability;
 
 import java.util.UUID;
@@ -18,27 +18,27 @@ public class DeathsSyncMessage
     boolean beingRevived;
     BlockPos pos;
 
-    public DeathsSyncMessage(int deaths, boolean isDown, int downTimeLeft, UUID uuid, boolean beingRevived, BlockPos pos)
+    public DeathsSyncMessage(int deaths, boolean isDown, int downTimeLeft, UUID uuid, boolean beingRevived, BlockPos blockPosition)
     {
         this.deaths = deaths;
         this.isDown = isDown;
         this.uuid = uuid;
         this.downTimeLeft = downTimeLeft;
         this.beingRevived = beingRevived;
-        this.pos = pos;
+        this.pos = blockPosition;
     }
 
-    public static void encode(DeathsSyncMessage message, PacketBuffer buf) {
+    public static void encode(DeathsSyncMessage message, FriendlyByteBuf buf) {
         buf.writeInt(message.deaths);
         buf.writeBoolean(message.isDown);
         buf.writeInt(message.downTimeLeft);
-        buf.writeUniqueId(message.uuid);
+        buf.writeUUID(message.uuid);
         buf.writeBoolean(message.beingRevived);
         buf.writeBlockPos(message.pos);
     }
 
-    public static DeathsSyncMessage decode(PacketBuffer buf) {
-        return new DeathsSyncMessage(buf.readInt(), buf.readBoolean(), buf.readInt(), buf.readUniqueId(), buf.readBoolean(), buf.readBlockPos());
+    public static DeathsSyncMessage decode(FriendlyByteBuf buf) {
+        return new DeathsSyncMessage(buf.readInt(), buf.readBoolean(), buf.readInt(), buf.readUUID(), buf.readBoolean(), buf.readBlockPos());
     }
 
     public static void handle(DeathsSyncMessage message, Supplier<NetworkEvent.Context> contextSupplier)
@@ -48,9 +48,9 @@ public class DeathsSyncMessage
         {
             context.enqueueWork(() ->
             {
-                if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.world.getPlayerByUuid(message.uuid) != null)
+                if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.level.getPlayerByUUID(message.uuid) != null)
                 {
-                    Minecraft.getInstance().player.world.getPlayerByUuid(message.uuid).getCapability(DeathCapability.DEATHS).ifPresent(deaths ->
+                    Minecraft.getInstance().player.level.getPlayerByUUID(message.uuid).getCapability(DeathCapability.DEATHS).ifPresent(deaths ->
                     {
                         deaths.setDeaths(message.deaths);
                         deaths.setDown(message.isDown);

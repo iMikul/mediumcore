@@ -1,16 +1,16 @@
 package net.momostudios.mediumcore.core.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
 
 public class MediumcoreDamageSources
 {
     public static final DamageSource BLEED_OUT = new DamageSource("bleed_out")
-            .setDamageBypassesArmor().setDamageAllowedInCreativeMode().setDamageIsAbsolute();
+            .bypassArmor().bypassInvul().bypassMagic();
 
-    public static EntityDamageSource gimpPlayerFrom(PlayerEntity player)
+    public static DamageSource gimpPlayerFrom(Player player)
     {
-        return new EntityDamageSource("gimp", player);
+        return new DamageSource("gimp");
     }
+
 }
