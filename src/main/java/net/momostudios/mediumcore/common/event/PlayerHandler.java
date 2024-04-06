@@ -1,12 +1,10 @@
 package net.momostudios.mediumcore.common.event;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +24,8 @@ import net.momostudios.mediumcore.common.capability.DeathCapability;
 import net.momostudios.mediumcore.core.network.MediumcorePacketHandler;
 import net.momostudios.mediumcore.core.network.message.DeathsSyncMessage;
 import net.momostudios.mediumcore.core.util.MediumcoreDamageSources;
+
+import java.awt.*;
 
 @Mod.EventBusSubscriber
 public class PlayerHandler
@@ -139,7 +139,7 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onHeal(LivingHealEvent event)
     {
-        if (event.getEntityLiving().getCapability(DeathCapability.DEATHS).map(DeathCapability::isDown).orElse(false))
+        if (event.getEntity().getCapability(DeathCapability.DEATHS).map(DeathCapability::isDown).orElse(false))
         {
             event.setCanceled(true);
         }
@@ -149,7 +149,7 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onPlayerMine(PlayerEvent.BreakSpeed event)
     {
-        event.getPlayer().getCapability(DeathCapability.DEATHS).ifPresent(cap ->
+        event.getEntity().getCapability(DeathCapability.DEATHS).ifPresent(cap ->
         {
             if (cap.isDown() || cap.isSpectator())
             {
@@ -161,7 +161,7 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onPlayerHurt(LivingHurtEvent event)
     {
-        if (event.getEntityLiving() instanceof Player && event.getEntityLiving().getPersistentData().getInt("resistanceTime") > 0
+        if (event.getEntity() instanceof Player && event.getEntity().getPersistentData().getInt("resistanceTime") > 0
         && event.getSource() != DamageSource.OUT_OF_WORLD)
         {
             event.setCanceled(true);
@@ -182,7 +182,7 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.Clone event)
     {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         Player oldPlayer = event.getOriginal();
         oldPlayer.reviveCaps();
         player.getCapability(DeathCapability.DEATHS).ifPresent(newCap ->
@@ -199,7 +199,7 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event)
     {
-        if (event.getEntityLiving() instanceof Player player && !event.getEntityLiving().level.isClientSide)
+        if (event.getEntity() instanceof Player player && !event.getEntity().level.isClientSide)
         {
             player.getCapability(DeathCapability.DEATHS).ifPresent(cap ->
             {
@@ -268,7 +268,7 @@ public class PlayerHandler
     @SubscribeEvent
     public static void onRightClickPlayer(PlayerInteractEvent.EntityInteractSpecific event)
     {
-        if (event.getPlayer().getCapability(DeathCapability.DEATHS).map(DeathCapability::isDown).orElse(false))
+        if (event.getEntity().getCapability(DeathCapability.DEATHS).map(DeathCapability::isDown).orElse(false))
         {
             event.setCanceled(true);
             return;
@@ -281,7 +281,7 @@ public class PlayerHandler
                 {
                     target.getAbilities().invulnerable = false;
                     target.onUpdateAbilities();
-                    target.hurt(MediumcoreDamageSources.gimpPlayerFrom(event.getPlayer()), Float.MAX_VALUE);
+                    target.hurt(MediumcoreDamageSources.gimpPlayerFrom(event.getEntity()), Float.MAX_VALUE);
                     target.level.playSound(null, target.blockPosition(), SoundEvents.GENERIC_BIG_FALL, SoundSource.PLAYERS, 1, 1);
                 }
             });
