@@ -23,7 +23,7 @@ public class RenderPlayerHandler
     @SubscribeEvent
     public static void renderPlayerDown(RenderPlayerEvent.Pre event)
     {
-        DeathCapability cap = event.getPlayer().getCapability(DeathCapability.DEATHS).orElse(new DeathCapability());
+        DeathCapability cap = event.getEntity().getCapability(DeathCapability.DEATHS).orElse(new DeathCapability());
 
         if (cap.isDown())
         {
@@ -45,7 +45,7 @@ public class RenderPlayerHandler
             // Render the player lying down
             ms.pushPose();
             ms.mulPose(Vector3f.XP.rotationDegrees(90));
-            (event.getPlayer()).yBodyRot = 180.0F;
+            (event.getEntity()).yBodyRot = 180.0F;
             ms.translate(0.0D, -1.0D, -0.1D);
             IS_DOWNED = true;
             // Leave the matrix stack pushed to apply the transformation to the player
